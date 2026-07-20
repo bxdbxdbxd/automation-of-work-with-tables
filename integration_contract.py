@@ -8,17 +8,21 @@ class ProcessingSelection:
     file_id: str
     journal_id: str
     base_id: str
+    journal_sheet: str
+    base_sheet: str
 
 
 def build_processing_selection(
-    *, file_id: str, journal_id: str, base_id: str
+    *, file_id: str, journal_id: str, base_id: str, journal_sheet: str, base_sheet: str
 ) -> ProcessingSelection:
-    if not file_id or not journal_id or not base_id:
-        raise ValueError("Не удалось получить file_id, journal_id или base_id.")
-    if journal_id == base_id:
-        raise ValueError("Таблица-журнал и таблица-база должны быть разными.")
+    if not file_id or not journal_id or not base_id or not journal_sheet or not base_sheet:
+        raise ValueError("Не удалось получить все ID таблиц или названия листов.")
+    if journal_id == base_id and journal_sheet == base_sheet:
+        raise ValueError("Таблица-журнал и таблица-база (и их листы) не должны полностью совпадать.")
     return ProcessingSelection(
         file_id=file_id,
         journal_id=journal_id,
         base_id=base_id,
+        journal_sheet=journal_sheet,
+        base_sheet=base_sheet,
     )
