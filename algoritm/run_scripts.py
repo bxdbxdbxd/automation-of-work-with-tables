@@ -4,9 +4,6 @@ from .read_file import parse_file, process_colors
 from .sheet_file import find_value_in_sheet
 
 
-SHEET_RANGE = "Лист1!A:R"
-
-
 def build_design_link(file_id):
     return f"https://drive.google.com/file/d/{file_id}/view"
 
@@ -33,15 +30,17 @@ def content_design(service):
     return designNum, barcode, result_colors, url_file
 
 
-def content_one_tab_by_id(service, sheet_id, design_num):
-    return find_value_in_sheet(service, sheet_id, SHEET_RANGE, design_num)
+def content_one_tab_by_id(service, sheet_id, design_num, sheet_name):
+    sheet_range = f"{sheet_name}!A:R"
+    return find_value_in_sheet(service, sheet_id, sheet_range, design_num)
 
 def content_one_tab(service, design_num):
     url_file_sheet = input('Ссылка на 1 таблицу ')
     sheet_id = extract_google_id(url_file_sheet)
     if not sheet_id:
         raise ValueError("ID первой таблицы не найден в ссылке.")
-    return content_one_tab_by_id(service, sheet_id, design_num)
+    sheet_name = input('Введите название листа первой таблицы (например, Лист1): ')
+    return content_one_tab_by_id(service, sheet_id, design_num, sheet_name)
 
 
 def content_second_tab_by_ids(
@@ -50,15 +49,17 @@ def content_second_tab_by_ids(
     file_id,
     journal_id,
     base_id,
+    journal_sheet,
+    base_sheet,
 ):
     designNum, barcode, colors, link_des = content_design_by_id(drive_service, file_id)
-    info = content_one_tab_by_id(sheets_service, journal_id, designNum)
+    info = content_one_tab_by_id(sheets_service, journal_id, designNum, journal_sheet)
     if info is None:
         raise ValueError(f"Дизайн {designNum} не найден в таблице-журнале.")
 
     info['E'] = designNum
     row_list = cells_in_insert(info, barcode, colors, link_des)
-    return add_row_to_sheet(sheets_service, base_id, row_list)
+    return add_row_to_sheet(sheets_service, base_id, row_list, base_sheet)
 
 def content_second_tab(sheets_service, drive_service):
     designNum, barcode, colors, link_des = content_design(drive_service)
@@ -70,5 +71,6 @@ def content_second_tab(sheets_service, drive_service):
     sheet_id = extract_google_id(url_file_sheet2)
     if not sheet_id:
         raise ValueError("ID второй таблицы не найден в ссылке.")
+    sheet_name2 = input('Введите название листа второй таблицы (например, Лист1): ')
     row_list = cells_in_insert(info, barcode, colors, link_des)
-    return add_row_to_sheet(sheets_service, sheet_id, row_list)
+    return add_row_to_sheet(sheets_service, sheet_id, row_list, sheet_name2)
