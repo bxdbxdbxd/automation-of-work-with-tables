@@ -1,4 +1,5 @@
 import re
+
 def cells_in_insert(row, barcode, colors, link):
     parts = [row.get('P'), row.get('Q'), row.get('J'), row.get('K')]
     product_name = ' '.join(filter(None, parts))
@@ -25,8 +26,8 @@ def cells_in_insert(row, barcode, colors, link):
     return row_list
 
 
-def add_row_to_sheet(service, id_sheet, row_list):
-    range_name = "Лист1!A1"
+def add_row_to_sheet(service, id_sheet, row_list, sheet_name):
+    range_name = f"{sheet_name}!A1"
     body = {'values': [row_list]}
     result = service.spreadsheets().values().append(
         spreadsheetId=id_sheet,
@@ -45,12 +46,12 @@ def add_row_to_sheet(service, id_sheet, row_list):
     spreadsheet = service.spreadsheets().get(spreadsheetId=id_sheet).execute()
     sheet_id = None
     for sheet in spreadsheet.get('sheets', []):
-        if sheet['properties']['title'] == 'Лист1':
+        if sheet['properties']['title'] == sheet_name:
             sheet_id = sheet['properties']['sheetId']
             break
 
     if sheet_id is None:
-        print("Ошибка: Лист 'Лист1' не найден. Форматирование не применено.")
+        print(f"Ошибка: Лист '{sheet_name}' не найден. Форматирование не применено.")
         return result
 
     requests = [
