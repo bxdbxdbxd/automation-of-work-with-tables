@@ -10,6 +10,8 @@ def run_full_processing(
     file_id: str,
     journal_id: str,
     base_id: str,
+    journal_sheet: str,
+    base_sheet: str,
     services: GoogleServices | None = None,
 ) -> str:
     services = services or build_google_services()
@@ -19,6 +21,8 @@ def run_full_processing(
         file_id,
         journal_id,
         base_id,
+        journal_sheet,
+        base_sheet,
     )
     updated_range = _extract_updated_range(result)
     if updated_range:
